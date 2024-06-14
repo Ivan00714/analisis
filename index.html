@@ -1,0 +1,122 @@
+<?php
+session_start();
+
+// Verificar si el usuario ya tiene una sesión activa
+if (isset($_SESSION['usuario'])) {
+    // Si hay una sesión activa, redirigir a otra página
+    header("Location: index.html");
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script>
+        // Deshabilitar el botón atrás
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+      </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="stylesx.css">
+    <script>
+        $(document).ready(function () {
+            $("#loginForm").submit(function (event) {
+                event.preventDefault();
+
+                var nombre_usuario = $("#nombre_usuario").val();
+                var contrasena = $("#contrasena").val();
+                var email = $("#email").val();
+
+                var data = {
+                    nombre_usuario: nombre_usuario,
+                    contrasena: contrasena,
+                    email: email
+                };
+
+                // Realizar la solicitud AJAX para verificar la autenticación
+                $.ajax({
+                    type: "POST",
+                    url: "verificar_login.php",
+                    data: data,
+                    success: function (response) {
+                        if (response === "Inicio Exitoso") {
+                            $("#mensajeSuccess").html("Inicio de Sesión Exitoso");
+                            $("#mensajeSuccess").show(); // Mostrar mensaje de éxito
+                            $("#mensajeError").hide();  // Ocultar mensaje de error
+                            window.location.href = "home.html";
+                        } else {
+                            $("#mensajeError").html("Usuario o contraseña incorrectos.");
+                            $("#mensajeError").show(); // Mostrar mensaje de error
+                            $("#mensajeSuccess").hide();  // Ocultar mensaje de éxito
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container-fluid h-100 d-flex justify-content-center align-items-center">
+        <div class="form-container bg-light p-4 rounded shadow">
+            <div class='correcto' id="mensajeSuccess"></div>
+            <div class='error' id="mensajeError"></div>
+            <form id="loginForm">
+                <h2 class="text-center">Ingreso</h2>
+                <div class="form-group">
+                    <label for="nombre_usuario">Usuario:</label>
+                    <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="contrasena">Contraseña:</label>
+                    <input type="password" class="form-control" name="contrasena" id="contrasena" placeholder="Contraseña" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+            </form>
+        </div>
+    </div>
+    <footer class="footer text-center mt-4">
+        <h1>TATTOO CHECK</h1>
+        <h2>Integrante</h2>
+        <ul>
+            <li>Barraza Ivan</li>
+        </ul>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+<script>
+    // Verifica si el parámetro de cierre de sesión está presente en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const logoutParam = urlParams.get('logout');
+    if (logoutParam) {
+        // Redirige nuevamente a la página de inicio de sesión para evitar volver atrás
+        window.location.replace("index.html");
+    }
+</script>
+<script>
+    // Función para detectar cambios en el historial de navegación
+    window.onpopstate = function(event) {
+        // Redirigir a la página de inicio de sesión si el usuario intenta volver atrás después de cerrar sesión
+        window.location.replace("index.html");
+    };
+</script>
+<script>
+    // Verificar si la cookie indicando el cierre de sesión está presente
+    if (document.cookie.split(';').some((item) => item.trim().startsWith('cerrar_sesion='))) {
+        // Redirige al usuario a la página de inicio de sesión
+        window.location.replace("index.html");
+    }
+</script>
+
+
+</html>
